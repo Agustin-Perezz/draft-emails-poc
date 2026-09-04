@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const TEST_ENV = {
   OPENAI_API_KEY: "test-openai-key",
@@ -7,30 +7,29 @@ const TEST_ENV = {
   APPROVAL_TOKEN_SECRET: "test-approval-secret",
 };
 
-async function importApprovalTokenModule() {
+const FORBIDDEN_RESULT = {
+  ok: false,
+  error: { code: 403, message: expect.any(String) },
+};
+
+beforeEach(() => {
+  vi.useFakeTimers();
+  Object.assign(process.env, TEST_ENV);
+});
+
+async function importTokenModule() {
   vi.resetModules();
   return import("@/lib/approval-token");
 }
 
-beforeEach(() => {
-  vi.useFakeTimers();
-  vi.resetModules();
-  Object.assign(process.env, TEST_ENV);
-});
-
-afterEach(() => {
-  vi.useRealTimers();
-});
-
 describe("approval token", () => {
   it("create→verify round-trip returns ok with the correct draftId", async () => {
     const { createApprovalToken, verifyApprovalToken } =
-      await importApprovalTokenModule();
+      await importTokenModule();
 
     const token = createApprovalToken("draft-123");
-    const result = verifyApprovalToken(token);
 
-    expect(result).toEqual({
+    expect(verifyApprovalToken(token)).toEqual({
       ok: true,
       data: { draftId: "draft-123" },
     });
@@ -39,67 +38,46 @@ describe("approval token", () => {
   it("rejects an expired token with a 403 ApiError", async () => {
     const { APPROVAL_TOKEN_TTL_MS } = await import("@/lib/constants");
     const { createApprovalToken, verifyApprovalToken } =
-      await importApprovalTokenModule();
+      await importTokenModule();
 
     const token = createApprovalToken("draft-123");
     vi.advanceTimersByTime(APPROVAL_TOKEN_TTL_MS + 1);
 
-    const result = verifyApprovalToken(token);
-
-    expect(result).toEqual({
-      ok: false,
-      error: { code: 403, message: expect.any(String) },
-    });
+    expect(verifyApprovalToken(token)).toEqual(FORBIDDEN_RESULT);
   });
 
   it("rejects a consumed token on second verify with a 403 ApiError", async () => {
     const { createApprovalToken, verifyApprovalToken, consumeApprovalToken } =
-      await importApprovalTokenModule();
+      await importTokenModule();
 
     const token = createApprovalToken("draft-123");
-    const firstResult = verifyApprovalToken(token);
-    expect(firstResult.ok).toBe(true);
-
+    expect(verifyApprovalToken(token).ok).toBe(true);
     consumeApprovalToken(token);
-    const secondResult = verifyApprovalToken(token);
 
-    expect(secondResult).toEqual({
-      ok: false,
-      error: { code: 403, message: expect.any(String) },
-    });
+    expect(verifyApprovalToken(token)).toEqual(FORBIDDEN_RESULT);
   });
 
   it("rejects a tampered token with a 403 ApiError", async () => {
     const { createApprovalToken, verifyApprovalToken } =
-      await importApprovalTokenModule();
+      await importTokenModule();
 
     const token = createApprovalToken("draft-123");
     const tamperedToken = `${token.slice(0, -2)}xy`;
-    const result = verifyApprovalToken(tamperedToken);
 
-    expect(result).toEqual({
-      ok: false,
-      error: { code: 403, message: expect.any(String) },
-    });
+    expect(verifyApprovalToken(tamperedToken)).toEqual(FORBIDDEN_RESULT);
   });
 
   it("rejects a token signed with a wrong secret with a 403 ApiError", async () => {
     const { createApprovalToken, verifyApprovalToken } =
-      await importApprovalTokenModule();
-
+      await importTokenModule();
     const token = createApprovalToken("draft-123");
 
-    // Re-import the module with a different secret to mint a foreign token.
     process.env.APPROVAL_TOKEN_SECRET = "other-secret";
-    const foreignModule = await importApprovalTokenModule();
-    const foreignToken = foreignModule.createApprovalToken("draft-123");
+    const { createApprovalToken: createForeignToken } =
+      await importTokenModule();
+    const foreignToken = createForeignToken("draft-123");
 
-    const result = verifyApprovalToken(foreignToken);
-
-    expect(result).toEqual({
-      ok: false,
-      error: { code: 403, message: expect.any(String) },
-    });
-    expect(token).not.toEqual(foreignToken);
+    expect(verifyApprovalToken(foreignToken)).toEqual(FORBIDDEN_RESULT);
+    expect(verifyApprovalToken(token).ok).toBe(true);
   });
 });

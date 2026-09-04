@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 type EnvVars = Record<string, string | undefined>;
 
@@ -20,10 +20,6 @@ function setProcessEnv(vars: EnvVars): void {
   }
   Object.assign(process.env, vars);
 }
-
-beforeEach(() => {
-  vi.unstubAllEnvs();
-});
 
 describe("env module", () => {
   it("exports a typed env object when all required vars are set", async () => {
@@ -53,15 +49,8 @@ describe("env module", () => {
   it("throws naming ALL missing vars when several are absent", async () => {
     setProcessEnv({ OPENAI_API_KEY: "test-openai-key" });
 
-    let thrownMessage = "";
-    try {
-      await importEnvModule();
-    } catch (error) {
-      thrownMessage = (error as Error).message;
-    }
-
-    expect(thrownMessage).toContain("RESEND_API_KEY");
-    expect(thrownMessage).toContain("RESEND_FROM_EMAIL");
-    expect(thrownMessage).toContain("APPROVAL_TOKEN_SECRET");
+    await expect(importEnvModule()).rejects.toThrow(
+      /RESEND_API_KEY.*RESEND_FROM_EMAIL.*APPROVAL_TOKEN_SECRET/,
+    );
   });
 });

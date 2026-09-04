@@ -10,16 +10,11 @@ import {
 } from "@/lib/types";
 
 const TOKEN_ALGORITHM = "sha256";
-const TOKEN_PARTS_COUNT = 3;
 const TOKEN_SECRET = env.approvalTokenSecret;
 
 const consumedTokens = new Set<string>();
 
-type TokenParts = {
-  draftId: string;
-  expiryMs: number;
-  signature: Buffer;
-};
+type TokenParts = [draftId: string, expiryMs: number, signature: Buffer];
 
 function forbidden(message: string): { ok: false; error: ApiError } {
   return { ok: false, error: { code: ApiErrorCode.Forbidden, message } };
@@ -31,38 +26,22 @@ function signDraftId(draftId: string, expiryMs: number): Buffer {
     .digest();
 }
 
-function encodeBase64Url(value: Buffer): string {
-  return value.toString("base64url");
-}
-
-function decodeBase64Url(value: string): Buffer {
-  return Buffer.from(value, "base64url");
-}
-
 function parseToken(token: string): TokenParts | null {
-  const parts = token.split(".");
-  if (parts.length !== TOKEN_PARTS_COUNT) {
-    return null;
-  }
-
-  const [draftId, expiryPart, signaturePart] = parts;
-  const expiryMs = Number.parseInt(expiryPart, 10);
+  const [draftId, expiryPart, signaturePart] = token.split(".");
+  const expiryMs = Number.parseInt(expiryPart ?? "", 10);
+  const signature = Buffer.from(signaturePart ?? "", "base64url");
   if (!draftId || Number.isNaN(expiryMs)) {
     return null;
   }
 
-  return {
-    draftId,
-    expiryMs,
-    signature: decodeBase64Url(signaturePart),
-  };
+  return [draftId, expiryMs, signature];
 }
 
 export function createApprovalToken(draftId: string): string {
   const expiryMs = Date.now() + APPROVAL_TOKEN_TTL_MS;
   const signature = signDraftId(draftId, expiryMs);
 
-  return `${draftId}.${expiryMs}.${encodeBase64Url(signature)}`;
+  return `${draftId}.${expiryMs}.${signature.toString("base64url")}`;
 }
 
 export function verifyApprovalToken(token: string): ApiResult<TokenPayload> {
@@ -75,12 +54,10 @@ export function verifyApprovalToken(token: string): ApiResult<TokenPayload> {
     return forbidden("Approval token is malformed.");
   }
 
-  const { draftId, expiryMs, signature } = parts;
+  const [draftId, expiryMs, signature] = parts;
   const expectedSignature = signDraftId(draftId, expiryMs);
-  const signaturesMatch =
-    signature.length === expectedSignature.length &&
-    timingSafeEqual(signature, expectedSignature);
-  if (!signaturesMatch) {
+  const lengthsDiffer = signature.length !== expectedSignature.length;
+  if (lengthsDiffer || !timingSafeEqual(signature, expectedSignature)) {
     return forbidden("Approval token signature is invalid.");
   }
 

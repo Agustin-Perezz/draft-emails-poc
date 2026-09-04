@@ -1,7 +1,4 @@
-export type EmailAttachment = {
-  filename: string;
-  url: string;
-};
+export type EmailAttachment = { filename: string; url: string };
 
 export type DraftPayload = {
   to: string;
@@ -20,27 +17,11 @@ export type CandidateProfile = {
   cvUrl: string;
 };
 
-export type DraftApiRequest = {
-  rawPost: string;
-};
-
-export type DraftApiResponse = {
-  draft: DraftPayload;
-  approvalToken: string;
-};
-
-export type SendApiRequest = {
-  draft: DraftPayload;
-  approvalToken: string;
-};
-
-export type SendApiResponse = {
-  messageId: string;
-};
-
-export type TokenPayload = {
-  draftId: string;
-};
+export type DraftApiRequest = { rawPost: string };
+export type DraftApiResponse = { draft: DraftPayload; approvalToken: string };
+export type SendApiRequest = { draft: DraftPayload; approvalToken: string };
+export type SendApiResponse = { messageId: string };
+export type TokenPayload = { draftId: string };
 
 export enum ApiErrorCode {
   BadRequest = 400,
@@ -50,10 +31,7 @@ export enum ApiErrorCode {
   Internal = 500,
 }
 
-export type ApiError = {
-  code: ApiErrorCode;
-  message: string;
-};
+export type ApiError = { code: ApiErrorCode; message: string };
 
 export type ApiResult<T> =
   | { ok: true; data: T }
