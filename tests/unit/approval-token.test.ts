@@ -93,10 +93,13 @@ describe("approval token", () => {
     process.env.APPROVAL_TOKEN_SECRET = "other-secret";
     const foreignModule = await importApprovalTokenModule();
     const foreignToken = foreignModule.createApprovalToken("draft-123");
-    expect(verifyApprovalToken(foreignToken).ok).toBe(false);
 
-    // The original verifier still accepts the original token.
-    const result = verifyApprovalToken(token);
-    expect(result.ok).toBe(true);
+    const result = verifyApprovalToken(foreignToken);
+
+    expect(result).toEqual({
+      ok: false,
+      error: { code: 403, message: expect.any(String) },
+    });
+    expect(token).not.toEqual(foreignToken);
   });
 });

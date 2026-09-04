@@ -14,7 +14,10 @@ const REQUIRED_ENV_KEYS = [
   "APPROVAL_TOKEN_SECRET",
 ] as const;
 
-function readEnvValue(source: EnvSource, key: (typeof REQUIRED_ENV_KEYS)[number]): string {
+function readEnvValue(
+  source: EnvSource,
+  key: (typeof REQUIRED_ENV_KEYS)[number],
+): string {
   const value = source[key];
   if (!value) {
     return "";

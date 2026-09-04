@@ -2,7 +2,12 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 import { APPROVAL_TOKEN_TTL_MS } from "@/lib/constants";
 import { env } from "@/lib/env";
-import { ApiErrorCode, type ApiError, type ApiResult, type TokenPayload } from "@/lib/types";
+import {
+  type ApiError,
+  ApiErrorCode,
+  type ApiResult,
+  type TokenPayload,
+} from "@/lib/types";
 
 const TOKEN_ALGORITHM = "sha256";
 const TOKEN_PARTS_COUNT = 3;
