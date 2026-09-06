@@ -90,6 +90,11 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          OPENAI_API_KEY: placeholder-openai-api-key
+          RESEND_API_KEY: placeholder-resend-api-key
+          RESEND_FROM_EMAIL: placeholder@example.com
+          APPROVAL_TOKEN_SECRET: placeholder-approval-token-secret
+          APP_URL: https://placeholder.example.com
 
   e2e:
     name: Playwright E2E
