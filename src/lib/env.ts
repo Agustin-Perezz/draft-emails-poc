@@ -5,6 +5,7 @@ type Env = {
   resendApiKey: string;
   resendFromEmail: string;
   approvalTokenSecret: string;
+  appUrl: string;
 };
 
 const REQUIRED_ENV_KEYS = [
@@ -12,6 +13,7 @@ const REQUIRED_ENV_KEYS = [
   "RESEND_API_KEY",
   "RESEND_FROM_EMAIL",
   "APPROVAL_TOKEN_SECRET",
+  "APP_URL",
 ] as const;
 
 function validateEnv(source: EnvSource): Env {
@@ -29,6 +31,7 @@ function validateEnv(source: EnvSource): Env {
     resendApiKey: source.RESEND_API_KEY as string,
     resendFromEmail: source.RESEND_FROM_EMAIL as string,
     approvalTokenSecret: source.APPROVAL_TOKEN_SECRET as string,
+    appUrl: source.APP_URL as string,
   };
 }
 

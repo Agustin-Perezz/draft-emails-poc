@@ -1,14 +1,20 @@
-import { CV_PLACEHOLDER_URL } from "@/lib/constants";
 import type { CandidateProfile } from "@/lib/types";
 
 export const CANDIDATE_PROFILE: CandidateProfile = {
   name: "Agustin Perez",
-  title: "Frontend Developer",
-  yearsOfExperience: "5+",
-  coreStack: ["React", "TypeScript", "Next.js", "Tailwind CSS"],
-  portfolioUrl: "https://agustinperez.dev",
-  githubUrl: "https://github.com/agustinperez",
-  cvUrl: CV_PLACEHOLDER_URL,
+  title: "Full-Stack Engineer",
+  yearsOfExperience: "3+",
+  coreStack: [
+    "React",
+    "Next.js",
+    "Nest.js",
+    "TypeScript",
+    "Node.js",
+    "AWS",
+    "Clean architecture and Clean code",
+  ],
+  portfolioUrl: "https://portfolio-two-alpha-cvs8791gjg.vercel.app",
+  githubUrl: "https://github.com/Agustin-Perezz",
 };
 
 export const STYLE_GUIDELINES = `Tone: modern, concise and professional. No filler phrases.
@@ -25,7 +31,6 @@ export function buildSystemPrompt(): string {
     `Core stack: ${CANDIDATE_PROFILE.coreStack.join(", ")}`,
     `Portfolio: ${CANDIDATE_PROFILE.portfolioUrl}`,
     `GitHub: ${CANDIDATE_PROFILE.githubUrl}`,
-    `CV URL: ${CANDIDATE_PROFILE.cvUrl}`,
     "",
     STYLE_GUIDELINES,
   ];

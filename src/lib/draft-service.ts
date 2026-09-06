@@ -1,32 +1,26 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { generateObject } from "ai";
+import { generateText, Output } from "ai";
 import { z } from "zod";
 
 import { buildSystemPrompt } from "@/lib/candidate-profile";
-import { LLM_TIMEOUT_MS } from "@/lib/constants";
+import { CV_FILENAME, CV_PUBLIC_PATH, LLM_TIMEOUT_MS } from "@/lib/constants";
 import { env } from "@/lib/env";
 import type { ApiResult, DraftApiRequest, DraftPayload } from "@/lib/types";
 import { ApiErrorCode } from "@/lib/types";
 
 const openai = createOpenAI({ apiKey: env.openAiApiKey });
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const draftSchema = z.object({
-  to: z.email("recipient email (to)"),
+  to: z.string().min(1).regex(EMAIL_REGEX, "recipient email (to)"),
   subject: z.string().min(1),
   body: z.string().min(1),
-  attachments: z
-    .array(
-      z.object({
-        filename: z.string().min(1),
-        url: z.url(),
-      }),
-    )
-    .min(1),
 });
 
 const DRAFT_MODEL_ID = "gpt-4o-mini";
 const ABORT_HINT = "abort";
-const NO_OBJECT_GENERATED = "NoObjectGenerated";
+const NO_OUTPUT_GENERATED = "NoOutputGenerated";
 const ZOD_ISSUE_PATH_SEPARATOR = ".";
 
 function errorResult(
@@ -60,15 +54,14 @@ export async function generateDraft(
   const timeoutId = setTimeout(() => abortController.abort(), LLM_TIMEOUT_MS);
 
   try {
-    const { object } = await generateObject({
+    const { output: object } = await generateText({
       model: openai(DRAFT_MODEL_ID),
-      schema: draftSchema,
+      output: Output.object({ schema: draftSchema }),
       system: buildSystemPrompt(),
       prompt: request.rawPost,
       abortSignal: abortController.signal,
     });
 
-    // Defense in depth: never trust the provider output blindly.
     const validated = draftSchema.safeParse(object);
     if (!validated.success) {
       return errorResult(
@@ -77,7 +70,14 @@ export async function generateDraft(
       );
     }
 
-    return { ok: true, data: validated.data };
+    const draft: DraftPayload = {
+      ...validated.data,
+      attachments: [
+        { filename: CV_FILENAME, url: `${env.appUrl}${CV_PUBLIC_PATH}` },
+      ],
+    };
+
+    return { ok: true, data: draft };
   } catch (cause) {
     const errorName =
       cause instanceof Error ? cause.name : (String(cause) as string);
@@ -90,7 +90,7 @@ export async function generateDraft(
       );
     }
 
-    if (errorName.includes(NO_OBJECT_GENERATED)) {
+    if (errorName.includes(NO_OUTPUT_GENERATED)) {
       return errorResult(
         ApiErrorCode.Unprocessable,
         schemaViolationMessage(cause),
