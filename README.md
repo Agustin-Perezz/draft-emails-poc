@@ -1,7 +1,7 @@
-# next-scaffold
+# draft-emails-poc
 
-[![Quality gate status](https://sonarcloud.io/api/project_badges/measure?project=Agustin-Perezz_next-scaffold&metric=alert_status&token=5ef88f4ca9ec87efb39e7b315d9ad4cbc4b255f6)](https://sonarcloud.io/summary/new_code?id=Agustin-Perezz_next-scaffold)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Agustin-Perezz_next-scaffold&metric=coverage&token=5ef88f4ca9ec87efb39e7b315d9ad4cbc4b255f6)](https://sonarcloud.io/summary/new_code?id=Agustin-Perezz_next-scaffold)
+[![Quality gate status](https://sonarcloud.io/api/project_badges/measure?project=Agustin-Perezz_draft-emails-poc&metric=alert_status&token=5ef88f4ca9ec87efb39e7b315d9ad4cbc4b255f6)](https://sonarcloud.io/summary/new_code?id=Agustin-Perezz_draft-emails-poc)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Agustin-Perezz_draft-emails-poc&metric=coverage&token=5ef88f4ca9ec87efb39e7b315d9ad4cbc4b255f6)](https://sonarcloud.io/summary/new_code?id=Agustin-Perezz_draft-emails-poc)
 
 A production-ready [Next.js](https://nextjs.org) starter. It keeps server and client boundaries explicit. It colocates data fetching with Server Actions and pushes interactivity to the component leaves. The scaffold follows a shift-left approach. Fast feedback (lint, typecheck, unit tests + coverage) runs first. Then SonarCloud analysis imports the coverage report. Then the production build runs. The expensive E2E suite runs last. This order catches issues early and cheaply.
 
@@ -28,7 +28,7 @@ A production-ready [Next.js](https://nextjs.org) starter. It keeps server and cl
 ## Folder Structure
 
 ```
-next-scaffold/
+draft-emails-poc/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml                # Shift-left chain: static → unit → sonar → build → e2e (+ snyk)
