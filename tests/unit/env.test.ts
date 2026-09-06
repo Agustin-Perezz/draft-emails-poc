@@ -7,6 +7,7 @@ const COMPLETE_ENV: EnvVars = {
   RESEND_API_KEY: "test-resend-key",
   RESEND_FROM_EMAIL: "outreach@test.example",
   APPROVAL_TOKEN_SECRET: "test-approval-secret",
+  APP_URL: "https://test.example.com",
 };
 
 async function importEnvModule() {
@@ -32,6 +33,7 @@ describe("env module", () => {
       resendApiKey: "test-resend-key",
       resendFromEmail: "outreach@test.example",
       approvalTokenSecret: "test-approval-secret",
+      appUrl: "https://test.example.com",
     });
   });
 
@@ -50,7 +52,7 @@ describe("env module", () => {
     setProcessEnv({ OPENAI_API_KEY: "test-openai-key" });
 
     await expect(importEnvModule()).rejects.toThrow(
-      /RESEND_API_KEY.*RESEND_FROM_EMAIL.*APPROVAL_TOKEN_SECRET/,
+      /RESEND_API_KEY.*RESEND_FROM_EMAIL.*APPROVAL_TOKEN_SECRET.*APP_URL/,
     );
   });
 });

@@ -5,6 +5,7 @@ const TEST_ENV = {
   RESEND_API_KEY: "test-resend-key",
   RESEND_FROM_EMAIL: "outreach@test.example",
   APPROVAL_TOKEN_SECRET: "test-approval-secret",
+  APP_URL: "https://test.example.com",
 };
 
 const VALID_DRAFT = {
