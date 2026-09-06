@@ -14,7 +14,6 @@ export type CandidateProfile = {
   coreStack: readonly string[];
   portfolioUrl: string;
   githubUrl: string;
-  cvUrl: string;
 };
 
 export type DraftApiRequest = { rawPost: string };
