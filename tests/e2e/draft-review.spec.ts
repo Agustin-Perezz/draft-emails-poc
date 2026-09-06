@@ -1,6 +1,6 @@
 import { expect, type Page, type Route, test } from "@playwright/test";
 
-import { API_ROUTES } from "@/lib/constants";
+import { API_ROUTES, CV_FILENAME, CV_PUBLIC_PATH } from "@/lib/constants";
 
 import { DEVELOGIA_POST } from "../fixtures/develogia-post";
 
@@ -10,7 +10,10 @@ const STUB_DRAFT = {
     subject: "Dev FullStack Jr/Ssr - Agustin Perez",
     body: "Hola,\n\nVi la búsqueda de Desarrollador FullStack en Develogia...",
     attachments: [
-      { filename: "Agustin-Perez-CV.pdf", url: "https://example.com/cv" },
+      {
+        filename: CV_FILENAME,
+        url: `https://test.example.com${CV_PUBLIC_PATH}`,
+      },
     ],
   },
   approvalToken: "stub-token",
@@ -40,7 +43,7 @@ async function stubSendApi(
 }
 
 async function generateDraftFrom(page: Page) {
-  await page.goto("/draft-review");
+  await page.goto("/");
   await page.getByLabel("Paste the raw job post").fill(DEVELOGIA_POST);
   await page.getByRole("button", { name: "Generate Draft" }).click();
 }
@@ -59,7 +62,6 @@ test.describe("draft review workflow", () => {
     const toInput = page.getByLabel("To", { exact: true });
     await expect(toInput).toHaveValue("antonella.m@develogia.com");
 
-    // Human edits before approving.
     await page
       .getByLabel("Subject", { exact: true })
       .fill("Edited subject from review UI");
