@@ -9,6 +9,7 @@ import type {
   SendApiRequest,
   SendApiResponse,
 } from "@/lib/types";
+import { WorkflowStatus } from "@/lib/types";
 import { useDraftReviewWorkflowState } from "../hooks/useDraftReviewWorkflowState";
 import { DraftReviewForm } from "./DraftReviewForm";
 import { DraftReviewJobPostInput } from "./DraftReviewJobPostInput";
@@ -41,8 +42,8 @@ export function DraftReviewContainer() {
   const workflow = useDraftReviewWorkflowState();
   const [rawPost, setRawPost] = useState("");
   const [draft, setDraft] = useState<DraftApiResponse | null>(null);
-  const isDrafting = workflow.status === "drafting";
-  const isSending = workflow.status === "sending";
+  const isDrafting = workflow.status === WorkflowStatus.Drafting;
+  const isSending = workflow.status === WorkflowStatus.Sending;
 
   const generateDraft = useCallback(async () => {
     workflow.startDrafting();
@@ -93,7 +94,7 @@ export function DraftReviewContainer() {
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-8 p-8">
       <h1 className="text-2xl font-semibold">Draft Emails Outreach</h1>
 
-      {workflow.status === "error" || workflow.errorMessage ? (
+      {workflow.status === WorkflowStatus.Error || workflow.errorMessage ? (
         <p
           role="alert"
           data-testid="workflow-error"
@@ -110,7 +111,7 @@ export function DraftReviewContainer() {
         isDrafting={isDrafting}
       />
 
-      {workflow.status === "reviewing" && draft ? (
+      {workflow.status === WorkflowStatus.Reviewing && draft ? (
         <DraftReviewForm
           draft={draft.draft}
           isSending={isSending}
@@ -118,7 +119,7 @@ export function DraftReviewContainer() {
         />
       ) : null}
 
-      {workflow.status === "done" ? (
+      {workflow.status === WorkflowStatus.Done ? (
         <p className="text-sm text-muted-foreground" data-testid="send-success">
           Email sent successfully.
         </p>
